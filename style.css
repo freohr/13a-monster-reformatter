@@ -1,0 +1,34 @@
+.parserStack {
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.parser {
+  width: 150px;
+  height: 50px;
+  justify-self: center;
+  align-self: center;
+}
+
+.parserInput {
+  width: 100%;
+  height: 200px;
+}
+
+button {
+  margin-top: 20px;
+  width: 100px;
+  height: 50px;
+  justify-self: center;
+  align-self: center;
+}
+
+#output,
+#originalText {
+  width: 800px;
+  height: 600px;
+}

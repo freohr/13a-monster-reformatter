@@ -1,0 +1,3 @@
+[submodule "obsidian-13A-monster-parser"]
+	path = obsidian-13A-monster-parser
+	url = https://github.com/freohr/obsidian-13A-monster-parser.git

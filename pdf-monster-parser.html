@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Title</title>
+</head>
+
+<body>
+  <div class="parserStack">
+    <textarea placeholder="Monster's PDF Description" class="parserInput" id="rawDescription"
+      oninput="window.parser.parseDescription()"></textarea>
+    <textarea placeholder="Monster's PDF Attacks" class="parserInput" id="rawAttacks"
+      oninput="window.parser.parseAttacks()"></textarea>
+    <textarea placeholder="Monster's PDF Traits" class="parserInput" id="rawTraits"
+      oninput="window.parser.parseTraits()"></textarea>
+    <textarea placeholder="Monster's PDF Nastier Traits" class="parserInput" id="rawNastierTraits"
+      oninput="window.parser.parseNastierTraits()"></textarea>
+    <textarea placeholder="Monster's PDF Defenses" class="parserInput" id="rawDefenses"
+      oninput="window.parser.parseDefenses()"></textarea>
+
+    <button id="clear" onclick="window.parser.clearCurrentMonster()">
+      Clear current Monster
+    </button>
+  </div>
+
+  <p>Full transformed output</p>
+  <textarea id="output"></textarea>
+</body>
+<link rel="stylesheet" type="text/css" href="style.css" />
+
+<script type="module">
+  import {
+    parseDescription,
+    parseAttacks,
+    parseTraits,
+    parseNastierTraits,
+    parseDefenses,
+    clearCurrentMonster,
+  } from "./parser-handler.js";
+
+  const parser = {
+    parseDescription: parseDescription,
+    parseAttacks: parseAttacks,
+    parseDefenses: parseDefenses,
+    parseTraits: parseTraits,
+    parseNastierTraits: parseNastierTraits,
+    clearCurrentMonster: clearCurrentMonster,
+  };
+
+  window.parser = parser;
+</script>
+
+</html>
