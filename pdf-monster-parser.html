@@ -7,46 +7,53 @@
 </head>
 
 <body>
-  <div class="parserStack">
-    <textarea placeholder="Monster's PDF Description" class="parserInput" id="rawDescription"
-      oninput="window.parser.parseDescription()"></textarea>
-    <textarea placeholder="Monster's PDF Attacks" class="parserInput" id="rawAttacks"
-      oninput="window.parser.parseAttacks()"></textarea>
-    <textarea placeholder="Monster's PDF Traits" class="parserInput" id="rawTraits"
-      oninput="window.parser.parseTraits()"></textarea>
-    <textarea placeholder="Monster's PDF Nastier Traits" class="parserInput" id="rawNastierTraits"
-      oninput="window.parser.parseNastierTraits()"></textarea>
-    <textarea placeholder="Monster's PDF Defenses" class="parserInput" id="rawDefenses"
-      oninput="window.parser.parseDefenses()"></textarea>
+  <div class="stack">
+    <textarea placeholder="Monster's PDF Description" class="parserInput" id="rawDescription"></textarea>
+    <label for="raw-attacks">The attacks' names (including the em-dash) and the traits' names
+      (including the colon) MUST be on a single ligne for the parser to
+      detected them correctly.</label>
+    <textarea name="raw-attacks" placeholder="Monster's PDF Attacks" class="parserInput" id="rawAttacks"></textarea>
+    <textarea placeholder="Monster's PDF Traits" class="parserInput" id="rawTraits"></textarea>
+    <textarea placeholder="Monster's PDF Nastier Traits" class="parserInput" id="rawNastierTraits"></textarea>
+    <textarea placeholder="Monster's PDF Defenses" class="parserInput" id="rawDefenses"></textarea>
+  </div>
 
+  <div class="stack">
+    <select name="output-format">
+      <option value="obsidian" selected>Obsidian Fantasy Statblock</option>
+      <option value="latex">LaTeX Monster Card</option>
+      <option value="foundry">Foundry Statblock Data</option>
+    </select>
+
+    <p>Full transformed output</p>
+    <button>Copy formatted Block</button>
     <button id="clear" onclick="window.parser.clearCurrentMonster()">
       Clear current Monster
     </button>
-  </div>
 
-  <p>Full transformed output</p>
-  <textarea id="output"></textarea>
+    <textarea id="output"></textarea>
+  </div>
 </body>
 <link rel="stylesheet" type="text/css" href="style.css" />
 
 <script type="module">
-  import {
-    parseDescription,
-    parseAttacks,
-    parseTraits,
-    parseNastierTraits,
-    parseDefenses,
-    clearCurrentMonster,
-  } from "./parser-handler.js";
+  import {parser} from "./parser-handler.js";
 
-  const parser = {
-    parseDescription: parseDescription,
-    parseAttacks: parseAttacks,
-    parseDefenses: parseDefenses,
-    parseTraits: parseTraits,
-    parseNastierTraits: parseNastierTraits,
-    clearCurrentMonster: clearCurrentMonster,
-  };
+  document
+    .querySelector("#rawDescription")
+    .addEventListener("input", parser.parseDescription);
+  document
+    .querySelector("#rawAttacks")
+    .addEventListener("input", parser.parseAttacks);
+  document
+    .querySelector("#rawTraits")
+    .addEventListener("input", parser.parseTraits);
+  document
+    .querySelector("#rawNastierTraits")
+    .addEventListener("input", parser.parseNastierTraits);
+  document
+    .querySelector("#rawDefenses")
+    .addEventListener("input", parser.parseDefenses);
 
   window.parser = parser;
 </script>

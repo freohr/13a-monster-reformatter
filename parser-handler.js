@@ -1,9 +1,20 @@
 import { Parser13AMonster } from "./obsidian-13A-monster-parser/assets/scripts/13A-monster-parser.js";
 
-const currentMonster = {};
+const currentMonster = {
+  triggeredAttacks: [],
+};
 const outputFormat = "obsidian";
 
-export function clearCurrentMonster() {
+export const parser = {
+  clearCurrentMonster,
+  parseDescription,
+  parseAttacks,
+  parseTraits,
+  parseNastierTraits,
+  parseDefenses,
+};
+
+function clearCurrentMonster() {
   for (let field in currentMonster) {
     if (currentMonster.hasOwnProperty(field)) {
       delete currentMonster[field];
@@ -38,8 +49,23 @@ function formatMonsterBlock() {
 }
 
 function updateCurrentMonster(newFields) {
-  Object.assign(currentMonster, newFields);
+  // Deal with Triggered attacks manually
+  // Since they can be in the middle of traits or in their dedicated blocks, they can be parsed in multiple places
+  // So we need to manage a manual Set of those (because JS can't deal with a custom hashing for their Set)
+  let triggeredAttacks = [];
+  if (Object.hasOwn(newFields, "triggeredAttacks")) {
+    triggeredAttacks = [...newFields.triggeredAttacks];
+    delete newFields["triggeredAttacks"];
+  }
 
+  for (let attack of triggeredAttacks) {
+    if (!currentMonster.triggeredAttacks.some((a) => attack.equals(a))) {
+      currentMonster.triggeredAttacks.push(attack);
+    }
+  }
+
+  // Do the rest, replacing a block instead of concatenating
+  Object.assign(currentMonster, newFields);
   return formatMonsterBlock();
 }
 
@@ -47,17 +73,14 @@ function displayText(text, target) {
   document.querySelector(target).value = text;
 }
 
-function getRawText(id) {
-  return document.querySelector(id)?.value;
-}
+function parseDescription(event) {
+  const text = event.srcElement.value;
 
-export function parseDescription() {
-  const text = getRawText("#rawDescription");
   if (!text) {
     return;
   }
 
-  const monsterParser = new Parser13AMonster.Namespace.BlockParser(text);
+  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
 
   displayText(
     updateCurrentMonster({
@@ -67,13 +90,13 @@ export function parseDescription() {
   );
 }
 
-export function parseAttacks() {
-  const text = getRawText("#rawAttacks");
+function parseAttacks(event) {
+  const text = event.srcElement.value;
   if (!text) {
     return;
   }
 
-  const monsterParser = new Parser13AMonster.Namespace.BlockParser(text);
+  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
 
   displayText(
     updateCurrentMonster(monsterParser.parseAttackBlock()),
@@ -81,27 +104,24 @@ export function parseAttacks() {
   );
 }
 
-export function parseTraits() {
-  const text = getRawText("#rawTraits");
+function parseTraits(event) {
+  const text = event.srcElement.value;
   if (!text) {
     return;
   }
 
-  const monsterParser = new Parser13AMonster.Namespace.BlockParser(text);
+  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
 
-  displayText(
-    updateCurrentMonster({ traits: monsterParser.parseTraitBlock() }),
-    "#output",
-  );
+  displayText(updateCurrentMonster(monsterParser.parseTraitBlock()), "#output");
 }
 
-export function parseNastierTraits() {
-  const text = getRawText("#rawNastierTraits");
+function parseNastierTraits(event) {
+  const text = event.srcElement.value;
   if (!text) {
     return;
   }
 
-  const monsterParser = new Parser13AMonster.Namespace.BlockParser(text);
+  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
 
   displayText(
     updateCurrentMonster({ nastierTraits: monsterParser.parseTraitBlock() }),
@@ -109,13 +129,13 @@ export function parseNastierTraits() {
   );
 }
 
-export function parseDefenses() {
-  const text = getRawText("#rawDefenses");
+function parseDefenses(event) {
+  const text = event.srcElement.value;
   if (!text) {
     return;
   }
 
-  const monsterParser = new Parser13AMonster.Namespace.BlockParser(text);
+  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
 
   displayText(
     updateCurrentMonster(monsterParser.parseDefenseBlock()),

@@ -1,4 +1,4 @@
-.parserStack {
+.stack {
   width: 800px;
   display: flex;
   flex-direction: column;
@@ -19,9 +19,10 @@
   height: 200px;
 }
 
-button {
-  margin-top: 20px;
-  width: 100px;
+button,
+select {
+  margin: 10px 0;
+  width: 200px;
   height: 50px;
   justify-self: center;
   align-self: center;
