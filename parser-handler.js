@@ -6,13 +6,22 @@ const currentMonster = {
 const outputFormat = "obsidian";
 
 export const parser = {
-  clearCurrentMonster,
   parseDescription,
   parseAttacks,
   parseTraits,
   parseNastierTraits,
   parseDefenses,
 };
+
+export const helpers = {
+  clearCurrentMonster,
+  clearTriggeredAttacks,
+  copyMonsterToClipboard,
+};
+
+function displayText(text, target) {
+  document.querySelector(target).value = text;
+}
 
 function clearCurrentMonster() {
   for (let field in currentMonster) {
@@ -21,12 +30,28 @@ function clearCurrentMonster() {
     }
   }
 
+  currentMonster.triggeredAttacks = [];
+
   displayText("", "#output");
   displayText("", "#rawDescription");
   displayText("", "#rawAttacks");
   displayText("", "#rawTraits");
   displayText("", "#rawNastierTraits");
   displayText("", "#rawDefenses");
+}
+
+function clearTriggeredAttacks() {
+  delete currentMonster["triggeredAttacks"];
+}
+
+async function copyMonsterToClipboard() {
+  const text = document.querySelector("#output").value;
+
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (error) {
+    console.error(error.message);
+  }
 }
 
 function formatMonsterBlock() {
@@ -66,79 +91,99 @@ function updateCurrentMonster(newFields) {
 
   // Do the rest, replacing a block instead of concatenating
   Object.assign(currentMonster, newFields);
-  return formatMonsterBlock();
-}
 
-function displayText(text, target) {
-  document.querySelector(target).value = text;
+  displayText(formatMonsterBlock(), "#output");
 }
 
 function parseDescription(event) {
   const text = event.srcElement.value;
 
   if (!text) {
+    clearDescription();
     return;
   }
 
   const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
+  updateCurrentMonster({
+    fullDescription: monsterParser.parseDescriptionBlock(),
+  });
+}
 
-  displayText(
-    updateCurrentMonster({
-      fullDescription: monsterParser.parseDescriptionBlock(),
-    }),
-    "#output",
-  );
+function deleteField(fieldName) {
+  if (Object.hasOwn(currentMonster, fieldName)) {
+    delete currentMonster[fieldName];
+  }
+}
+
+function clearDescription() {
+  deleteField("fullDescription");
+  displayText(formatMonsterBlock(), "#output");
 }
 
 function parseAttacks(event) {
   const text = event.srcElement.value;
   if (!text) {
+    clearAttacks();
     return;
   }
 
   const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
+  updateCurrentMonster(monsterParser.parseAttackBlock());
+}
 
-  displayText(
-    updateCurrentMonster(monsterParser.parseAttackBlock()),
-    "#output",
-  );
+function clearAttacks() {
+  deleteField("attacks");
+  displayText(formatMonsterBlock(), "#output");
 }
 
 function parseTraits(event) {
   const text = event.srcElement.value;
   if (!text) {
+    clearTraits();
     return;
   }
 
   const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
+  updateCurrentMonster(monsterParser.parseTraitBlock());
+}
 
-  displayText(updateCurrentMonster(monsterParser.parseTraitBlock()), "#output");
+function clearTraits() {
+  deleteField("traits");
+  displayText(formatMonsterBlock(), "#output");
 }
 
 function parseNastierTraits(event) {
   const text = event.srcElement.value;
   if (!text) {
+    clearNastierTraits();
     return;
   }
 
   const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
+  updateCurrentMonster(monsterParser.parseNastierTraitBlock());
+}
 
-  displayText(
-    updateCurrentMonster({ nastierTraits: monsterParser.parseTraitBlock() }),
-    "#output",
-  );
+function clearNastierTraits() {
+  deleteField("nastierTraits");
+  displayText(formatMonsterBlock(), "#output");
 }
 
 function parseDefenses(event) {
   const text = event.srcElement.value;
   if (!text) {
+    clearDefenses();
     return;
   }
 
   const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
+  updateCurrentMonster(monsterParser.parseDefenseBlock());
+}
 
-  displayText(
-    updateCurrentMonster(monsterParser.parseDefenseBlock()),
-    "#output",
-  );
+function clearDefenses() {
+  deleteField("ac");
+  deleteField("pd");
+  deleteField("md");
+  deleteField("hp");
+
+  displayText(formatMonsterBlock(), "#output");
 }

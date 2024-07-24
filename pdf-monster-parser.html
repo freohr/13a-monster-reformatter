@@ -26,10 +26,8 @@
     </select>
 
     <p>Full transformed output</p>
-    <button>Copy formatted Block</button>
-    <button id="clear" onclick="window.parser.clearCurrentMonster()">
-      Clear current Monster
-    </button>
+    <button id="copy">Copy formatted Block</button>
+    <button id="clear">Clear current Monster</button>
 
     <textarea id="output"></textarea>
   </div>
@@ -37,7 +35,7 @@
 <link rel="stylesheet" type="text/css" href="style.css" />
 
 <script type="module">
-  import {parser} from "./parser-handler.js";
+  import {parser, helpers} from "./parser-handler.js";
 
   document
     .querySelector("#rawDescription")
@@ -54,6 +52,13 @@
   document
     .querySelector("#rawDefenses")
     .addEventListener("input", parser.parseDefenses);
+
+  document
+    .querySelector("#clear")
+    .addEventListener("click", helpers.clearCurrentMonster);
+  document
+    .querySelector("#copy")
+    .addEventListener("click", helpers.copyMonsterToClipboard);
 
   window.parser = parser;
 </script>
