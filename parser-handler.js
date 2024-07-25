@@ -3,7 +3,7 @@ import { Parser13AMonster } from "./obsidian-13A-monster-parser/assets/scripts/1
 const currentMonster = {
   triggeredAttacks: [],
 };
-const outputFormat = "obsidian";
+let outputFormat = "obsidian";
 
 export const parser = {
   parseDescription,
@@ -17,6 +17,7 @@ export const helpers = {
   clearCurrentMonster,
   clearTriggeredAttacks,
   copyMonsterToClipboard,
+  changeOutputFormat,
 };
 
 function displayText(text, target) {
@@ -54,22 +55,27 @@ async function copyMonsterToClipboard() {
   }
 }
 
+function updateDisplay() {
+  displayText(formatMonsterBlock(), "#output");
+}
+
+function changeOutputFormat(event) {
+  outputFormat = event.srcElement.value;
+  updateDisplay();
+}
+
 function formatMonsterBlock() {
   switch (outputFormat) {
     case "obsidian":
     default: {
-      const output = [
-        "```statblock",
-        "layout: Basic 13th Age Monster Layout",
-        "columns: 1",
-        Parser13AMonster.Namespace.BlockWriter.writeFullMonster(currentMonster),
-        "```",
-      ];
-
-      return output.join("\n");
+      return Parser13AMonster.Namespace.ObsidianBlockWriter.writeFullStatblock(
+        currentMonster,
+      );
     }
     case "latex":
-      return "";
+      return Parser13AMonster.Namespace.LaTeXBlockWriter.writeMonsterCard(
+        currentMonster,
+      );
   }
 }
 
@@ -92,7 +98,7 @@ function updateCurrentMonster(newFields) {
   // Do the rest, replacing a block instead of concatenating
   Object.assign(currentMonster, newFields);
 
-  displayText(formatMonsterBlock(), "#output");
+  updateDisplay();
 }
 
 function parseDescription(event) {
@@ -117,7 +123,7 @@ function deleteField(fieldName) {
 
 function clearDescription() {
   deleteField("fullDescription");
-  displayText(formatMonsterBlock(), "#output");
+  updateDisplay();
 }
 
 function parseAttacks(event) {
@@ -133,7 +139,7 @@ function parseAttacks(event) {
 
 function clearAttacks() {
   deleteField("attacks");
-  displayText(formatMonsterBlock(), "#output");
+  updateDisplay();
 }
 
 function parseTraits(event) {
@@ -149,7 +155,7 @@ function parseTraits(event) {
 
 function clearTraits() {
   deleteField("traits");
-  displayText(formatMonsterBlock(), "#output");
+  updateDisplay();
 }
 
 function parseNastierTraits(event) {
@@ -165,7 +171,7 @@ function parseNastierTraits(event) {
 
 function clearNastierTraits() {
   deleteField("nastierTraits");
-  displayText(formatMonsterBlock(), "#output");
+  updateDisplay();
 }
 
 function parseDefenses(event) {
@@ -185,5 +191,5 @@ function clearDefenses() {
   deleteField("md");
   deleteField("hp");
 
-  displayText(formatMonsterBlock(), "#output");
+  updateDisplay();
 }

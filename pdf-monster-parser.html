@@ -19,7 +19,7 @@
   </div>
 
   <div class="stack">
-    <select name="output-format">
+    <select name="output-format" id="output-select">
       <option value="obsidian" selected>Obsidian Fantasy Statblock</option>
       <option value="latex">LaTeX Monster Card</option>
       <option value="foundry">Foundry Statblock Data</option>
@@ -52,6 +52,10 @@
   document
     .querySelector("#rawDefenses")
     .addEventListener("input", parser.parseDefenses);
+
+  document
+    .querySelector("#output-select")
+    .addEventListener("change", helpers.changeOutputFormat);
 
   document
     .querySelector("#clear")
