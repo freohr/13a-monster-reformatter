@@ -26,16 +26,18 @@
     </select>
 
     <p>Full transformed output</p>
-    <button class="copy" id="copy">Copy formatted Block</button>
+    <button class="copy" data-for=".base-output#output" id="copy">
+      Copy formatted Block
+    </button>
     <button id="clear">Clear current Monster</button>
 
     <textarea class="base-output" id="output"></textarea>
 
-    <button class="foundry-output hidden copy" id="copy-base">
+    <button class="foundry-output hidden copy" data-for=".foundry-output#base" id="copy-base">
       Copy Base Actor Data
     </button>
     <textarea class="foundry-output hidden" id="base"></textarea>
-    <button class="foundry-output hidden copy" id="copy-items">
+    <button class="foundry-output hidden copy" data-for=".foundry-output#items" id="copy-items">
       Copy Actor Item Data
     </button>
     <textarea class="foundry-output hidden" id="items"></textarea>
@@ -72,8 +74,7 @@
   document
     .querySelectorAll("button.copy")
     .forEach(
-      (element) => element.addEventListener("click", this.copyToClipboard),
-      helpers,
+      (element) => element.addEventListener("click", helpers.copyToClipboard)
     );
 
   window.parser = parser;

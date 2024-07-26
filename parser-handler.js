@@ -48,7 +48,9 @@ function clearTriggeredAttacks() {
 }
 
 async function copyToClipboard(event) {
-  const text = event.srcElement.value;
+  const target = event.srcElement.dataset.for;
+
+  const text = document.querySelector(target).value;
 
   try {
     await navigator.clipboard.writeText(text);
