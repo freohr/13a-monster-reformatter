@@ -37,7 +37,6 @@ function clearCurrentMonster() {
   displayText("", "#rawDescription");
   displayText("", "#rawAttacks");
   displayText("", "#rawTraits");
-  displayText("", "#rawNastierTraits");
   displayText("", "#rawDefenses");
   displayText("", ".foundry-output#base");
   displayText("", ".foundry-output#items");

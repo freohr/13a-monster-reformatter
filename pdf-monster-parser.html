@@ -14,7 +14,7 @@
       detected them correctly.</label>
     <textarea name="raw-attacks" placeholder="Monster's PDF Attacks" class="parserInput" id="rawAttacks"></textarea>
     <textarea placeholder="Monster's PDF Traits" class="parserInput" id="rawTraits"></textarea>
-    <textarea placeholder="Monster's PDF Nastier Traits" class="parserInput" id="rawNastierTraits"></textarea>
+    <!-- <textarea placeholder="Monster's PDF Nastier Traits" class="parserInput" id="rawNastierTraits"></textarea> -->
     <textarea placeholder="Monster's PDF Defenses" class="parserInput" id="rawDefenses"></textarea>
   </div>
 
@@ -57,9 +57,9 @@
   document
     .querySelector("#rawTraits")
     .addEventListener("input", parser.parseTraits);
-  document
-    .querySelector("#rawNastierTraits")
-    .addEventListener("input", parser.parseNastierTraits);
+  /* document
+     .querySelector("#rawNastierTraits")
+     .addEventListener("input", parser.parseNastierTraits); */
   document
     .querySelector("#rawDefenses")
     .addEventListener("input", parser.parseDefenses);
@@ -73,8 +73,8 @@
     .addEventListener("click", helpers.clearCurrentMonster);
   document
     .querySelectorAll("button.copy")
-    .forEach(
-      (element) => element.addEventListener("click", helpers.copyToClipboard)
+    .forEach((element) =>
+      element.addEventListener("click", helpers.copyToClipboard),
     );
 
   window.parser = parser;
