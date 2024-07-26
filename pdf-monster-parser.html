@@ -3,13 +3,13 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Title</title>
+  <title>Monster Uni-parser for 13th Age</title>
 </head>
 
 <body>
   <div class="stack">
     <textarea placeholder="Monster's PDF Description" class="parserInput" id="rawDescription"></textarea>
-    <label for="raw-attacks">The attacks' names (including the em-dash) and the traits' names
+    <label for="rawAttacks">The attacks' names (including the em-dash) and the traits' names
       (including the colon) MUST be on a single ligne for the parser to
       detected them correctly.</label>
     <textarea name="raw-attacks" placeholder="Monster's PDF Attacks" class="parserInput" id="rawAttacks"></textarea>
@@ -26,10 +26,19 @@
     </select>
 
     <p>Full transformed output</p>
-    <button id="copy">Copy formatted Block</button>
+    <button class="copy" id="copy">Copy formatted Block</button>
     <button id="clear">Clear current Monster</button>
 
-    <textarea id="output"></textarea>
+    <textarea class="base-output" id="output"></textarea>
+
+    <button class="foundry-output hidden copy" id="copy-base">
+      Copy Base Actor Data
+    </button>
+    <textarea class="foundry-output hidden" id="base"></textarea>
+    <button class="foundry-output hidden copy" id="copy-items">
+      Copy Actor Item Data
+    </button>
+    <textarea class="foundry-output hidden" id="items"></textarea>
   </div>
 </body>
 <link rel="stylesheet" type="text/css" href="style.css" />
@@ -61,8 +70,11 @@
     .querySelector("#clear")
     .addEventListener("click", helpers.clearCurrentMonster);
   document
-    .querySelector("#copy")
-    .addEventListener("click", helpers.copyMonsterToClipboard);
+    .querySelectorAll("button.copy")
+    .forEach(
+      (element) => element.addEventListener("click", this.copyToClipboard),
+      helpers,
+    );
 
   window.parser = parser;
 </script>

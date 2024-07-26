@@ -7,6 +7,10 @@
   margin-bottom: 20px;
 }
 
+.hidden {
+  display: none;
+}
+
 .parser {
   width: 150px;
   height: 50px;
@@ -28,8 +32,8 @@ select {
   align-self: center;
 }
 
-#output,
-#originalText {
+textarea.foundry-output,
+.base-output {
   width: 800px;
   height: 600px;
 }

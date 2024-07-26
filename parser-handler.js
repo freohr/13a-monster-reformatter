@@ -16,7 +16,7 @@ export const parser = {
 export const helpers = {
   clearCurrentMonster,
   clearTriggeredAttacks,
-  copyMonsterToClipboard,
+  copyToClipboard,
   changeOutputFormat,
 };
 
@@ -39,14 +39,16 @@ function clearCurrentMonster() {
   displayText("", "#rawTraits");
   displayText("", "#rawNastierTraits");
   displayText("", "#rawDefenses");
+  displayText("", ".foundry-output#base");
+  displayText("", ".foundry-output#items");
 }
 
 function clearTriggeredAttacks() {
   delete currentMonster["triggeredAttacks"];
 }
 
-async function copyMonsterToClipboard() {
-  const text = document.querySelector("#output").value;
+async function copyToClipboard(event) {
+  const text = event.srcElement.value;
 
   try {
     await navigator.clipboard.writeText(text);
@@ -56,12 +58,47 @@ async function copyMonsterToClipboard() {
 }
 
 function updateDisplay() {
-  displayText(formatMonsterBlock(), "#output");
+  if (outputFormat === "foundry") {
+    const monsterData = formatMonsterBlock();
+
+    displayText(JSON.stringify(monsterData.baseData), ".foundry-output#base");
+    displayText(JSON.stringify(monsterData.itemData), ".foundry-output#items");
+  } else {
+    displayText(formatMonsterBlock(), "#output");
+  }
+}
+
+function hideElement(element) {
+  element.classList.toggle("hidden", true);
+}
+
+function showElement(element) {
+  element.classList.toggle("hidden", false);
 }
 
 function changeOutputFormat(event) {
   outputFormat = event.srcElement.value;
+
+  if (outputFormat === "foundry") {
+    document.querySelectorAll(".foundry-output").forEach(showElement);
+    document.querySelectorAll(".base-output").forEach(hideElement);
+  } else {
+    document.querySelectorAll(".foundry-output").forEach(hideElement);
+    document.querySelectorAll(".base-output").forEach(showElement);
+  }
+
   updateDisplay();
+}
+
+function displayWarnings() {
+  if (!currentMonster.name) {
+  }
+
+  if (Parser13AMonster.Namespace.Helpers.isEmpty(currentMonster.attacks)) {
+  }
+
+  if (Parser13AMonster.Namespace.Helpers.isEmpty(currentMonster.traits)) {
+  }
 }
 
 function formatMonsterBlock() {
@@ -76,6 +113,18 @@ function formatMonsterBlock() {
       return Parser13AMonster.Namespace.LaTeXBlockWriter.writeMonsterCard(
         currentMonster,
       );
+    case "foundry": {
+      return {
+        baseData:
+          Parser13AMonster.Namespace.FoundryParser.createFoundryBaseActorData(
+            currentMonster,
+          ),
+        itemData:
+          Parser13AMonster.Namespace.FoundryParser.createFoundryActorItemsData(
+            currentMonster,
+          ),
+      };
+    }
   }
 }
 
