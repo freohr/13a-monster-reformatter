@@ -3,47 +3,207 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Monster Uni-parser for 13th Age</title>
+
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
 </head>
 
 <body>
-  <div class="stack">
-    <textarea placeholder="Monster's PDF Description" class="parserInput" id="rawDescription"></textarea>
-    <label for="rawAttacks">The attacks' names (including the em-dash) and the traits' names
-      (including the colon) MUST be on a single ligne for the parser to
-      detected them correctly.</label>
-    <textarea name="raw-attacks" placeholder="Monster's PDF Attacks" class="parserInput" id="rawAttacks"></textarea>
-    <textarea placeholder="Monster's PDF Traits" class="parserInput" id="rawTraits"></textarea>
-    <!-- <textarea placeholder="Monster's PDF Nastier Traits" class="parserInput" id="rawNastierTraits"></textarea> -->
-    <textarea placeholder="Monster's PDF Defenses" class="parserInput" id="rawDefenses"></textarea>
+  <div id="presentation" class="container">
+    <h1>Monster Reformatter for the 13th Age RPG</h1>
+    <p>
+      This is an interactive parser and reformatter for monster statblocks
+      provided in the format of the 13th Age RPG. I built it because I wanted
+      to easily copy & paste monster stats in various format for my own
+      campaign management. The parser works automatically on input, and
+      updates the desired output gradually.
+    </p>
+    <p>The available input format are:</p>
+    <ul>
+      <li>
+        <b>PDF Format:</b> The simplest one, a monster from an official or 3rd
+        party PDF for 13th Age (or the excellent
+        <a href="https://www.patreon.com/paperanddice/posts">Paper and Dice patreon</a>
+        (not affiliated, not my work, just good conversions from mostly D&D 5e and older monsters)).
+        <ul>
+      </li>You will need to split the block
+      yourself, as well as do a bit of manual formatting to make sure the
+      parser works correctly. Non-srd monsters will most likely only be
+      available in this format, and this can also be useful for your own
+      creations (follow the official format, paste it here, then bam,
+      reformatted monsters instead of manually doing each format by hand)
+      </li>
+    </ul>
+    </li>
+    <li>
+      <b>SRD HTML:</b> The raw HTML behind the
+      <a href="https://www.13thagesrd.com/monsters/">SRD Page about Monsters</a>. After downloading the page (right
+      click > "Save page as..."),
+      you can simply paste the table
+      for a given monster here.
+    </li>
+    <li>
+      <b>SRD Docx:</b> Your last resort, text taken straigth from the
+      <a href="https://pelgranepress.com/2013/10/24/the-archmage-engine-13th-age-srd/">Official SRD monster list</a>.
+      I added this option to the original parser while working on the
+      Obsidian SRD Vault, because this is the only officially provided SRD
+      by Fire Opal Media and the website (3rd party) wasn't fully updated to the
+      latest SRD version at the time (4.0). You're probably not going to
+      need this, because using the PDFs is easier, but since the parser can
+      do it, I threw it in this page.
+    </li>
+    </ul>
+    <p>The available output format are:</p>
+    <ul>
+      <li>
+        <b>Obsidian Fantasy Statblocks:</b> A statblock to use with the
+        <a href="https://obsidian.md/">Obsidian</a> module
+        <a href="https://github.com/javalent/fantasy-statblocks">Fantasy Statblocks</a>. Note that if you only need this
+        output and are using SRD monsters,
+        I recommend directly downloading the
+        <a href="https://github.com/Obsidian-TTRPG-Community/13th-Age-SRD-Markdown">SRD in an Obsidian Vault</a>
+        as the work of translating, organising & tagging the monsters has
+        already been done (baring a final format verification pass).
+      </li>
+      <li>
+        <b>LaTeX Monster Cards:</b> A LaTeX document class I made to easily
+        create A6 monster cards to use at the table. More information in the
+        <a href="https://github.com/freohr/13a-monster-cards">dedicated repo</a>.
+      </li>
+      <li>
+        <b>Foundry Monster Importer:</b> A preformatted monster data for ease
+        of importing in the
+        <a href="https://foundryvtt.com/packages/archmage">Foundry system for 13th Age</a>. Grab the import form macro
+        from
+        <a href="https://github.com/freohr/13a-uni-parser/raw/main/foundry-import-macro.js">there</a>
+        (made by me as well), create a macro in your world (set to "Global" &
+        "Script"), then use it with the output data from here to easily import
+        your monsters.
+      </li>
+    </ul>
   </div>
 
-  <div class="stack">
-    <select name="output-format" id="output-select">
-      <option value="obsidian" selected>Obsidian Fantasy Statblock</option>
-      <option value="latex">LaTeX Monster Card</option>
-      <option value="foundry">Foundry Statblock Data</option>
-    </select>
+  <div class="stack container text-center">
+    <h2>Monster Block</h2>
+    <div id="input-selector" class="row">
+      <label class="col-3" for="input-select">Desired input statblock format</label>
+      <select name="input-format" id="input-select" class="form-select col">
+        <option value="pdf" selected>PDF Statblock</option>
+        <option value="html">SRD HTML-extracted Statblock</option>
+        <option value="docx">SRD Docx Statblock</option>
+      </select>
+    </div>
 
-    <p>Full transformed output</p>
-    <button class="copy" data-for=".base-output#output" id="copy">
-      Copy formatted Block
-    </button>
-    <button id="clear">Clear current Monster</button>
+    <div class="row html-input hidden">
+      <label class="col-3" for="monsterName">
+        <h4> Monster Name</h4>
+      </label>
+      <input type="text" id="monsterName" placeholder="Monster Name" class="col form-control" />
+    </div>
+    <div class="row html-input hidden">
+      <label class="col-3" for="rawTable">
+        <h4>Monster HTML Table</h4>
+      </label>
+      <textarea placeholder="Monster's HTML table" class="parserInput col form-control" id="rawTable"></textarea>
+    </div>
 
-    <textarea class="base-output" id="output"></textarea>
+    <div class="row split-input">
+      <label class="col-3" for="rawDescription">
+        <h4>Monster Description</h4>
+        <p>(Name, Level, Strength & Type, Initiative, Vulnerabilities)</p>
+      </label>
+      <textarea placeholder="Monster's PDF Description" class="parserInput col form-control"
+        id="rawDescription"></textarea>
+    </div>
+    <div class="row split-input">
+      <label for="rawAttacks" class="col-3">
+        <h4>Monster Attacks</h4>
+        <p>(including potential triggered attacks)</p>
+      </label>
+      <textarea name="raw-attacks" placeholder="Monster's PDF Attacks" class="parserInput col form-control"
+        id="rawAttacks"></textarea>
+      <label for="rawAttacks" class="reminder">The attacks' names (including the em-dash) MUST be on a single ligne
+        for the parser to detected them correctly.</label>
+    </div>
+    <div class="row split-input">
+      <label for="rawTrais" class="col-3">
+        <h4>Monster Traits</h4>
+        <p>(including potential triggered attacks & Nastier Specials, with the header)</p>
+      </label>
+      <textarea placeholder="Monster's PDF Traits" class="parserInput col form-control" id="rawTraits"></textarea>
+      <label for="rawTraits" class="reminder">The traits' names (including the colon) MUST be on a single ligne for
+        the parser to detected them correctly.</label>
+    </div>
+    <div class="row split-input">
+      <label for="rawDefenses" class="col-3">
+        <h4>Monster Defenses</h4>
+        <p>(AC, PD, MD & HP)</p>
+      </label>
+      <textarea placeholder="Monster's PDF Defenses" class="parserInput col form-control" id="rawDefenses"></textarea>
+    </div>
 
-    <button class="foundry-output hidden copy" data-for=".foundry-output#base" id="copy-base">
-      Copy Base Actor Data
-    </button>
-    <textarea class="foundry-output hidden" id="base"></textarea>
-    <button class="foundry-output hidden copy" data-for=".foundry-output#items" id="copy-items">
-      Copy Actor Item Data
-    </button>
-    <textarea class="foundry-output hidden" id="items"></textarea>
+    <button id="clear" class="btn btn-danger">Clear current Monster</button>
+
+    <h2>Transformed output</h2>
+
+    <div id="output-selector" class="row">
+      <label for="#output-select" class="col-3">Desired output format</label>
+      <select name="output-format" id="output-select" class="form-select col">
+        <option value="obsidian" selected>Obsidian Fantasy Statblock</option>
+        <option value="latex">LaTeX Monster Card</option>
+        <option value="foundry">Foundry Statblock Data</option>
+      </select>
+    </div>
+
+    <div id="base-output" class="container output">
+      <button id="copy" class="copy btn btn-success" data-for="#base-output>#output">
+        Copy formatted Block
+      </button>
+      <textarea class="form-control" id="output"></textarea>
+    </div>
+
+    <div id="foundry-output" class="container output hidden">
+      <button class="copy btn btn-success" data-for="#foundry-output>#base" id="copy-base">
+        Copy Base Actor Data
+      </button>
+      <textarea class="form-control form-control" id="base"></textarea>
+      <button class="copy btn btn-success" data-for="#foundry-output>#items" id="copy-items">
+        Copy Actor Item Data
+      </button>
+      <textarea class="form-control" id="items"></textarea>
+    </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
 </body>
-<link rel="stylesheet" type="text/css" href="style.css" />
+
+<footer>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col">Source Code:</div>
+      <div class="col"><a href="https://github.com/freohr/13a-uni-parser">Website</a> under <a
+          href="https://github.com/freohr/13a-uni-parser/blob/main/LICENSE">GPL 3.0</a></div>
+      <div class="col"><a href="https://github.com/freohr/obsidian-13A-monster-parser/tree/main">Reformatter</a> under
+        <a href="https://github.com/freohr/obsidian-13A-monster-parser/blob/main/LICENSE">GPL 3.0</a>
+      </div>
+    </div>
+    <div id="community">
+      This website uses trademarks and/or copyrights owned by Fire Opal Media
+      Inc., which are used under the
+      <a href="https://www.fireopalmedia.com/13th-age-community-use">Fire Opal Media Inc., 13th Age Community Use
+        Policy</a>. We are expressly prohibited from charging you to use or access this
+      content. This website is not published, endorsed, or specifically approved
+      by Fire Opal Media.
+    </div>
+  </div>
+
+
+</footer>
 
 <script type="module">
   import {parser, helpers} from "./parser-handler.js";
@@ -57,13 +217,16 @@
   document
     .querySelector("#rawTraits")
     .addEventListener("input", parser.parseTraits);
-  /* document
-     .querySelector("#rawNastierTraits")
-     .addEventListener("input", parser.parseNastierTraits); */
   document
     .querySelector("#rawDefenses")
     .addEventListener("input", parser.parseDefenses);
 
+  document.querySelector("#monsterName").addEventListener("input", parser.getMonsterName);
+  document.querySelector("#rawTable").addEventListener("input", parser.parseHTML);
+
+  document
+    .querySelector("#input-select")
+    .addEventListener("change", helpers.changeInputFormat);
   document
     .querySelector("#output-select")
     .addEventListener("change", helpers.changeOutputFormat);

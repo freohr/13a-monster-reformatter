@@ -1,69 +1,163 @@
-import { Parser13AMonster } from "./obsidian-13A-monster-parser/assets/scripts/13A-monster-parser.js";
+import { MonsterReformatter13A } from "./obsidian-13A-monster-parser/assets/scripts/13A-monster-parser.js";
 
-const currentMonster = {
-  triggeredAttacks: [],
-};
+const currentMonster = new MonsterReformatter13A.Parser.MonsterStatBlock();
+
 let outputFormat = "obsidian";
+let inputFormat = "pdf";
 
-export const parser = {
-  parseDescription,
-  parseAttacks,
-  parseTraits,
-  parseNastierTraits,
-  parseDefenses,
-};
+// PARSER
 
-export const helpers = {
-  clearCurrentMonster,
-  clearTriggeredAttacks,
-  copyToClipboard,
-  changeOutputFormat,
-};
+export class parser {
+  static parseDescription(event) {
+    const text = event.srcElement.value;
 
-function displayText(text, target) {
-  document.querySelector(target).value = text;
+    if (!text) {
+      clearDescription();
+      return;
+    }
+
+    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    updateCurrentMonster(monsterParser.parseDescriptionBlock());
+  }
+
+  static parseAttacks(event) {
+    const text = event.srcElement.value;
+    if (!text) {
+      clearAttacks();
+      return;
+    }
+
+    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    updateCurrentMonster(monsterParser.parseAttackBlock());
+  }
+
+  static parseTraits(event) {
+    const text = event.srcElement.value;
+    if (!text) {
+      clearTraits();
+      return;
+    }
+
+    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    updateCurrentMonster(monsterParser.parseTraitBlock());
+  }
+
+  static parseNastierTraits(event) {
+    const text = event.srcElement.value;
+    if (!text) {
+      clearNastierTraits();
+      return;
+    }
+
+    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    updateCurrentMonster(monsterParser.parseNastierTraitBlock());
+  }
+
+  static parseDefenses(event) {
+    const text = event.srcElement.value;
+    if (!text) {
+      clearDefenses();
+      return;
+    }
+
+    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    updateCurrentMonster(monsterParser.parseDefenseBlock());
+  }
+
+  static getMonsterName(event) {
+    const text = event.srcElement.value;
+    if (!text) {
+      clearMonsterName();
+      return;
+    }
+
+    const newDescription = new MonsterReformatter13A.Parser.MonsterStatBlock(
+      text,
+    );
+
+    updateCurrentMonster(newDescription);
+  }
+
+  static parseHTML(event) {
+    const text = event.srcElement.value;
+    if (!text) {
+      helpers.clearCurrentMonster();
+      return;
+    }
+
+    const monsterParser =
+      MonsterReformatter13A.Parser.SrdHtmlParser.createPureHtmlParser(text);
+
+    updateCurrentMonster(monsterParser.getFullMonster());
+  }
 }
 
-function clearCurrentMonster() {
-  for (let field in currentMonster) {
-    if (currentMonster.hasOwnProperty(field)) {
-      delete currentMonster[field];
+// HELPERS
+
+export class helpers {
+  static changeInputFormat(event) {
+    inputFormat = event.srcElement.value;
+
+    if (inputFormat === "html") {
+      document.querySelectorAll(".html-input").forEach(showElement);
+      document.querySelectorAll(".split-input").forEach(hideElement);
+    } else {
+      document.querySelectorAll(".html-input").forEach(hideElement);
+      document.querySelectorAll(".split-input").forEach(showElement);
     }
   }
 
-  currentMonster.triggeredAttacks = [];
+  static changeOutputFormat(event) {
+    outputFormat = event.srcElement.value;
 
-  displayText("", "#output");
-  displayText("", "#rawDescription");
-  displayText("", "#rawAttacks");
-  displayText("", "#rawTraits");
-  displayText("", "#rawDefenses");
-  displayText("", ".foundry-output#base");
-  displayText("", ".foundry-output#items");
-}
+    if (outputFormat === "foundry") {
+      showElement(document.querySelector("#foundry-output"));
+      hideElement(document.querySelector("#base-output"));
+    } else {
+      hideElement(document.querySelector("#foundry-output"));
+      showElement(document.querySelector("#base-output"));
+    }
 
-function clearTriggeredAttacks() {
-  delete currentMonster["triggeredAttacks"];
-}
-
-async function copyToClipboard(event) {
-  const target = event.srcElement.dataset.for;
-
-  const text = document.querySelector(target).value;
-
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch (error) {
-    console.error(error.message);
+    updateDisplay();
   }
+
+  static clearCurrentMonster() {
+    currentMonster.clear();
+
+    displayText("", "#output");
+    displayText("", "#rawDescription");
+    displayText("", "#rawAttacks");
+    displayText("", "#rawTraits");
+    displayText("", "#rawDefenses");
+    displayText("", "#foundry-output#base");
+    displayText("", "#foundry-output#items");
+  }
+
+  static async copyToClipboard(event) {
+    const target = event.srcElement.dataset.for;
+
+    const text = document.querySelector(target).value;
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+}
+
+// INTERNAL
+
+function displayText(text, target) {
+  document.querySelector(target).value = text;
 }
 
 function updateDisplay() {
   if (outputFormat === "foundry") {
     const monsterData = formatMonsterBlock();
 
-    displayText(JSON.stringify(monsterData.baseData), ".foundry-output#base");
-    displayText(JSON.stringify(monsterData.itemData), ".foundry-output#items");
+    displayText(JSON.stringify(monsterData.baseData), "#foundry-output>#base");
+    displayText(JSON.stringify(monsterData.itemData), "#foundry-output>#items");
   } else {
     displayText(formatMonsterBlock(), "#output");
   }
@@ -77,51 +171,30 @@ function showElement(element) {
   element.classList.toggle("hidden", false);
 }
 
-function changeOutputFormat(event) {
-  outputFormat = event.srcElement.value;
-
-  if (outputFormat === "foundry") {
-    document.querySelectorAll(".foundry-output").forEach(showElement);
-    document.querySelectorAll(".base-output").forEach(hideElement);
-  } else {
-    document.querySelectorAll(".foundry-output").forEach(hideElement);
-    document.querySelectorAll(".base-output").forEach(showElement);
-  }
-
-  updateDisplay();
-}
-
 function displayWarnings() {
-  if (!currentMonster.name) {
-  }
-
-  if (Parser13AMonster.Namespace.Helpers.isEmpty(currentMonster.attacks)) {
-  }
-
-  if (Parser13AMonster.Namespace.Helpers.isEmpty(currentMonster.traits)) {
-  }
+  // TODO: display warnings of potential missing fields next to the output
 }
 
 function formatMonsterBlock() {
   switch (outputFormat) {
     case "obsidian":
     default: {
-      return Parser13AMonster.Namespace.ObsidianBlockWriter.writeFullStatblock(
+      return MonsterReformatter13A.Formatter.ObsidianBlockWriter.writeFullStatblock(
         currentMonster,
       );
     }
     case "latex":
-      return Parser13AMonster.Namespace.LaTeXBlockWriter.writeMonsterCard(
+      return MonsterReformatter13A.Formatter.LaTeXBlockWriter.writeMonsterCard(
         currentMonster,
       );
     case "foundry": {
       return {
         baseData:
-          Parser13AMonster.Namespace.FoundryParser.createFoundryBaseActorData(
+          MonsterReformatter13A.Formatter.FoundryWriter.createFoundryBaseActorData(
             currentMonster,
           ),
         itemData:
-          Parser13AMonster.Namespace.FoundryParser.createFoundryActorItemsData(
+          MonsterReformatter13A.Formatter.FoundryWriter.createFoundryActorItemsData(
             currentMonster,
           ),
       };
@@ -130,45 +203,13 @@ function formatMonsterBlock() {
 }
 
 function updateCurrentMonster(newFields) {
-  // Deal with Triggered attacks manually
-  // Since they can be in the middle of traits or in their dedicated blocks, they can be parsed in multiple places
-  // So we need to manage a manual Set of those (because JS can't deal with a custom hashing for their Set)
-  let triggeredAttacks = [];
-  if (Object.hasOwn(newFields, "triggeredAttacks")) {
-    triggeredAttacks = [...newFields.triggeredAttacks];
-    delete newFields["triggeredAttacks"];
-  }
-
-  for (let attack of triggeredAttacks) {
-    if (!currentMonster.triggeredAttacks.some((a) => attack.equals(a))) {
-      currentMonster.triggeredAttacks.push(attack);
-    }
-  }
-
-  // Do the rest, replacing a block instead of concatenating
-  Object.assign(currentMonster, newFields);
+  currentMonster.import(newFields);
 
   updateDisplay();
 }
 
-function parseDescription(event) {
-  const text = event.srcElement.value;
-
-  if (!text) {
-    clearDescription();
-    return;
-  }
-
-  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
-  updateCurrentMonster({
-    fullDescription: monsterParser.parseDescriptionBlock(),
-  });
-}
-
 function deleteField(fieldName) {
-  if (Object.hasOwn(currentMonster, fieldName)) {
-    delete currentMonster[fieldName];
-  }
+  currentMonster[fieldName] = null;
 }
 
 function clearDescription() {
@@ -176,31 +217,9 @@ function clearDescription() {
   updateDisplay();
 }
 
-function parseAttacks(event) {
-  const text = event.srcElement.value;
-  if (!text) {
-    clearAttacks();
-    return;
-  }
-
-  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
-  updateCurrentMonster(monsterParser.parseAttackBlock());
-}
-
 function clearAttacks() {
   deleteField("attacks");
   updateDisplay();
-}
-
-function parseTraits(event) {
-  const text = event.srcElement.value;
-  if (!text) {
-    clearTraits();
-    return;
-  }
-
-  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
-  updateCurrentMonster(monsterParser.parseTraitBlock());
 }
 
 function clearTraits() {
@@ -208,31 +227,9 @@ function clearTraits() {
   updateDisplay();
 }
 
-function parseNastierTraits(event) {
-  const text = event.srcElement.value;
-  if (!text) {
-    clearNastierTraits();
-    return;
-  }
-
-  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
-  updateCurrentMonster(monsterParser.parseNastierTraitBlock());
-}
-
 function clearNastierTraits() {
   deleteField("nastierTraits");
   updateDisplay();
-}
-
-function parseDefenses(event) {
-  const text = event.srcElement.value;
-  if (!text) {
-    clearDefenses();
-    return;
-  }
-
-  const monsterParser = new Parser13AMonster.Namespace.PdfBlockParser(text);
-  updateCurrentMonster(monsterParser.parseDefenseBlock());
 }
 
 function clearDefenses() {
@@ -240,6 +237,12 @@ function clearDefenses() {
   deleteField("pd");
   deleteField("md");
   deleteField("hp");
+
+  updateDisplay();
+}
+
+function clearMonsterName() {
+  deleteField("name");
 
   updateDisplay();
 }
