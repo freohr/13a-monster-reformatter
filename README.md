@@ -20,3 +20,4 @@ The available output formats are:
 - Update statblock parser to match the current 13th Age 2e Beta statblock format (size & strength being actually split, with size only being flavor)
 - Create an actual Obsidian plugin around the Reformatter framework, instead of relying on CustomJS to load the 2.5k lines file
   - Then reorganize and split the framework into separate manageable files.
+- Add option to get the full obsidian note (with a header) / a full LaTeX document (with the `\documentclass` header and the `\begin{document}` wrapper)
