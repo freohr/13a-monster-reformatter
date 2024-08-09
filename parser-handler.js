@@ -1,6 +1,11 @@
-import { MonsterReformatter13A } from "./obsidian-13A-monster-parser/assets/scripts/13A-monster-parser.js";
+import PdfBlockParser from "./obsidian-13A-monster-parser/src/parser/pdfparser.js"
+import { MonsterStatBlock } from "./obsidian-13A-monster-parser/src/statblock.js"
+import SrdHtmlParser from "./obsidian-13A-monster-parser/src/parser/srdhtmlparser.js"
+import ObsidianBlockWriter from "./obsidian-13A-monster-parser/src/writer/obsidian.js"
+import LaTeXBlockWriter from "./obsidian-13A-monster-parser/src/writer/latex.js"
+import FoundryWriter from "./obsidian-13A-monster-parser/src/writer/foundry.js"
 
-const currentMonster = new MonsterReformatter13A.Parser.MonsterStatBlock();
+const currentMonster = new MonsterStatBlock();
 
 let outputFormat = "obsidian";
 let inputFormat = "pdf";
@@ -16,7 +21,7 @@ export class parser {
       return;
     }
 
-    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    const monsterParser = new PdfBlockParser(text);
     updateCurrentMonster(monsterParser.parseDescriptionBlock());
   }
 
@@ -27,7 +32,7 @@ export class parser {
       return;
     }
 
-    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    const monsterParser = new PdfBlockParser(text);
     updateCurrentMonster(monsterParser.parseAttackBlock());
   }
 
@@ -38,7 +43,7 @@ export class parser {
       return;
     }
 
-    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    const monsterParser = new PdfBlockParser(text);
     updateCurrentMonster(monsterParser.parseTraitBlock());
   }
 
@@ -49,7 +54,7 @@ export class parser {
       return;
     }
 
-    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    const monsterParser = new PdfBlockParser(text);
     updateCurrentMonster(monsterParser.parseNastierTraitBlock());
   }
 
@@ -60,7 +65,7 @@ export class parser {
       return;
     }
 
-    const monsterParser = new MonsterReformatter13A.Parser.PdfBlockParser(text);
+    const monsterParser = new PdfBlockParser(text);
     updateCurrentMonster(monsterParser.parseDefenseBlock());
   }
 
@@ -71,7 +76,7 @@ export class parser {
       return;
     }
 
-    const newDescription = new MonsterReformatter13A.Parser.MonsterStatBlock(
+    const newDescription = new MonsterStatBlock(
       text,
     );
 
@@ -86,7 +91,7 @@ export class parser {
     }
 
     const monsterParser =
-      MonsterReformatter13A.Parser.SrdHtmlParser.createPureHtmlParser(text);
+      SrdHtmlParser.createPureHtmlParser(text);
 
     updateCurrentMonster(monsterParser.getFullMonster());
   }
@@ -179,22 +184,22 @@ function formatMonsterBlock() {
   switch (outputFormat) {
     case "obsidian":
     default: {
-      return MonsterReformatter13A.Formatter.ObsidianBlockWriter.writeFullStatblock(
+      return ObsidianBlockWriter.writeFullStatblock(
         currentMonster,
       );
     }
     case "latex":
-      return MonsterReformatter13A.Formatter.LaTeXBlockWriter.writeMonsterCard(
+      return LaTeXBlockWriter.writeMonsterCard(
         currentMonster,
       );
     case "foundry": {
       return {
         baseData:
-          MonsterReformatter13A.Formatter.FoundryWriter.createFoundryBaseActorData(
+          FoundryWriter.createFoundryBaseActorData(
             currentMonster,
           ),
         itemData:
-          MonsterReformatter13A.Formatter.FoundryWriter.createFoundryActorItemsData(
+          FoundryWriter.createFoundryActorItemsData(
             currentMonster,
           ),
       };
