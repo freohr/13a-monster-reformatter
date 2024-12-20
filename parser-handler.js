@@ -129,13 +129,13 @@ export class helpers {
   static clearCurrentMonster() {
     currentMonster.clear();
 
-    displayText("", "#output");
+    displayText("", "#base-output #output");
     displayText("", "#rawDescription");
     displayText("", "#rawAttacks");
     displayText("", "#rawTraits");
     displayText("", "#rawDefenses");
-    displayText("", "#foundry-output#base");
-    displayText("", "#foundry-output#items");
+    displayText("", "#foundry-output #base");
+    displayText("", "#foundry-output #items");
   }
 
   static async copyToClipboard(event) {
@@ -218,7 +218,7 @@ function deleteField(fieldName) {
 }
 
 function clearDescription() {
-  deleteField("fullDescription");
+  currentMonster.clearDescription();
   updateDisplay();
 }
 
