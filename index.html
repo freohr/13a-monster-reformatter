@@ -156,7 +156,15 @@
       </select>
     </div>
 
+    <div class="row" id="include-obsidian-header">
+      <label for="include-obsidian-header-check" class="col-3 form-check-label">Include YAML header?</label>
+      <div class="form-check form-switch col">
+        <input type="checkbox" class="form-check-input" id="include-obsidian-header-check" value="" />
+      </div>
+    </div>
+
     <div id="base-output" class="container output">
+
       <button id="copy" class="copy btn btn-success" data-for="#base-output>#output">
         Copy formatted Block
       </button>
@@ -228,6 +236,10 @@
   document
     .querySelector("#output-select")
     .addEventListener("change", helpers.changeOutputFormat);
+
+  document
+    .querySelector("#include-obsidian-header-check")
+    .addEventListener("change", helpers.changeIncludeHeader);
 
   document
     .querySelector("#clear")

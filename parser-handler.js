@@ -1,14 +1,15 @@
-import PdfBlockParser from "./obsidian-13A-monster-parser/src/parser/pdfparser.js"
-import { MonsterStatBlock } from "./obsidian-13A-monster-parser/src/statblock.js"
-import SrdHtmlParser from "./obsidian-13A-monster-parser/src/parser/srdhtmlparser.js"
-import ObsidianBlockWriter from "./obsidian-13A-monster-parser/src/writer/obsidian.js"
-import LaTeXBlockWriter from "./obsidian-13A-monster-parser/src/writer/latex.js"
-import FoundryWriter from "./obsidian-13A-monster-parser/src/writer/foundry.js"
+import PdfBlockParser from "./obsidian-13A-monster-parser/src/parser/pdfparser.js";
+import MonsterStatBlock from "./obsidian-13A-monster-parser/src/statblock.js";
+import SrdHtmlParser from "./obsidian-13A-monster-parser/src/parser/srdhtmlparser.js";
+import ObsidianBlockWriter from "./obsidian-13A-monster-parser/src/writer/obsidian.js";
+import LaTeXBlockWriter from "./obsidian-13A-monster-parser/src/writer/latex.js";
+import FoundryWriter from "./obsidian-13A-monster-parser/src/writer/foundry.js";
 
 const currentMonster = new MonsterStatBlock();
 
 let outputFormat = "obsidian";
 let inputFormat = "pdf";
+let isHeaderIncluded = false;
 
 // PARSER
 
@@ -76,9 +77,7 @@ export class parser {
       return;
     }
 
-    const newDescription = new MonsterStatBlock(
-      text,
-    );
+    const newDescription = new MonsterStatBlock(text);
 
     updateCurrentMonster(newDescription);
   }
@@ -90,8 +89,7 @@ export class parser {
       return;
     }
 
-    const monsterParser =
-      SrdHtmlParser.createPureHtmlParser(text);
+    const monsterParser = SrdHtmlParser.createPureHtmlParser(text);
 
     updateCurrentMonster(monsterParser.getFullMonster());
   }
@@ -122,6 +120,18 @@ export class helpers {
       hideElement(document.querySelector("#foundry-output"));
       showElement(document.querySelector("#base-output"));
     }
+
+    if (outputFormat === "obsidian") {
+      showElement(document.querySelector("#include-obsidian-header"));
+    } else {
+      hideElement(document.querySelector("#include-obsidian-header"));
+    }
+
+    updateDisplay();
+  }
+
+  static changeIncludeHeader(event) {
+    isHeaderIncluded = event.srcElement.checked;
 
     updateDisplay();
   }
@@ -184,24 +194,18 @@ function formatMonsterBlock() {
   switch (outputFormat) {
     case "obsidian":
     default: {
-      return ObsidianBlockWriter.writeFullStatblock(
-        currentMonster,
-      );
+      if (isHeaderIncluded) {
+        return ObsidianBlockWriter.writeFullNote(currentMonster);
+      } else {
+        return ObsidianBlockWriter.writeFullStatblock(currentMonster);
+      }
     }
     case "latex":
-      return LaTeXBlockWriter.writeMonsterCard(
-        currentMonster,
-      );
+      return LaTeXBlockWriter.writeMonsterCard(currentMonster);
     case "foundry": {
       return {
-        baseData:
-          FoundryWriter.createFoundryBaseActorData(
-            currentMonster,
-          ),
-        itemData:
-          FoundryWriter.createFoundryActorItemsData(
-            currentMonster,
-          ),
+        baseData: FoundryWriter.createFoundryBaseActorData(currentMonster),
+        itemData: FoundryWriter.createFoundryActorItemsData(currentMonster),
       };
     }
   }
