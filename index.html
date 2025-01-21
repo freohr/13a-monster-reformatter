@@ -95,6 +95,12 @@
       </select>
     </div>
 
+    <div class="row">
+      <label class="col-3" for="source-field">Statblock Source</label>
+      <input type="text" name="source-field" id="source-field" class="col form-control"
+        placeholder="Statblock Source" />
+    </div>
+
     <div class="row html-input hidden">
       <label class="col-3" for="monsterName">
         <h4> Monster Name</h4>
@@ -214,6 +220,9 @@
 <script type="module">
   import {parser, helpers} from "./parser-handler.js";
 
+  document
+    .querySelector("#source-field")
+    .addEventListener("input", parser.parseSource);
   document
     .querySelector("#rawDescription")
     .addEventListener("input", parser.parseDescription);

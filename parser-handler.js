@@ -14,6 +14,17 @@ let isHeaderIncluded = false;
 // PARSER
 
 export class parser {
+  static parseSource(event) {
+    const text = event.srcElement.value;
+
+    if (!text) {
+      clearSource();
+      return;
+    }
+
+    updateCurrentMonster(new MonsterStatBlock({ source: text }));
+  }
+
   static parseDescription(event) {
     const text = event.srcElement.value;
 
@@ -221,23 +232,33 @@ function deleteField(fieldName) {
   currentMonster[fieldName] = null;
 }
 
+function clearSource() {
+  deleteField("source");
+
+  updateDisplay();
+}
+
 function clearDescription() {
   currentMonster.clearDescription();
+
   updateDisplay();
 }
 
 function clearAttacks() {
   deleteField("attacks");
+
   updateDisplay();
 }
 
 function clearTraits() {
   deleteField("traits");
+
   updateDisplay();
 }
 
 function clearNastierTraits() {
   deleteField("nastierTraits");
+
   updateDisplay();
 }
 
