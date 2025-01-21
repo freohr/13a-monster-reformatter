@@ -150,6 +150,7 @@ export class helpers {
   static clearCurrentMonster() {
     currentMonster.clear();
 
+    displayText("", "#source-field");
     displayText("", "#base-output #output");
     displayText("", "#rawDescription");
     displayText("", "#rawAttacks");
